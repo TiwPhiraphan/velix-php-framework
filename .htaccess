@@ -1,0 +1,24 @@
+DirectoryIndex public/app.php
+RewriteEngine On
+# ------------------------------------------------------------------
+# 1. 301 Redirect: /public/file.ext  →  /file.ext
+#     (but NEVER redirect /public/app.php and avoid redirect loops)
+# ------------------------------------------------------------------
+RewriteCond %{THE_REQUEST} \s/+public/(.+?)\s [NC]
+RewriteCond %{DOCUMENT_ROOT}/public/%1 -f
+RewriteCond %1 !^app\.php$ [NC]
+RewriteRule ^public/(.*)$ /%1 [L,R=301]
+# ------------------------------------------------------------------
+# 2. Serve real files from /public/ silently when requested without /public/
+#     e.g. /images/logo.png  →  internally serves /public/images/logo.png
+# ------------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f
+RewriteRule ^(.*)$ public/$1 [L]
+# ------------------------------------------------------------------
+# 3. Route everything else (including root /) to public/app.php
+# ------------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ public/app.php [L]
