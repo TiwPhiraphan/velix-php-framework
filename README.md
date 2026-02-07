@@ -13,11 +13,11 @@ Velix is a lightweight, flexible PHP micro-framework designed to make web develo
 ## Installation
 1. Clone or download the Velix framework.
 ```bash
-git clone https://github.com/wetoon/Velix-Framework.git velix-app
+git clone https://github.com/TiwPhiraphan/velix-php-framework.git app-name
 ```
 or
 ```bash
-bun create wetoon/Velix-Framework velix-app
+bun create TiwPhiraphan/velix-php-framework app-name
 ```
 2. Place the `Velix.php` file in your project root.
 3. Set up a web server (e.g., Apache) with the provided `.htaccess` to route requests through `public/app.php`.
