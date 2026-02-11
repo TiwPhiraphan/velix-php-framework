@@ -1,29 +1,73 @@
 # Velix PHP Framework
-Velix is a lightweight, flexible PHP micro-framework designed to make web development fast and intuitive. It simplifies routing, request handling, and response management with a clean and modern API. Whether you're building a small API or a dynamic web app, Velix offers a hassle-free experience with minimal setup.
 
-## Features
-- **Simple Routing**: Define routes for GET, POST, and other HTTP methods with ease.
-- **Flexible Handlers**: Route handlers accept dynamic arguments, including `Request`, `Response`, or route parameters, in any order.
-- **Request Handling**: Access query params, body data, JSON payloads, and headers effortlessly.
-- **Response Control**: Set headers, cookies, status codes, and send JSON or raw responses with a fluent API.
-- **Lightweight**: Minimal dependencies, perfect for small to medium projects.
-- **UTF-8 Support**: Built-in support for multilingual URLs and data.
-- **Static File Serving**: Automatically serves static files from the `public` directory.
+Velix is a lightweight and flexible PHP micro-framework designed to make web development fast, expressive, and intuitive. It focuses on simplicity while still providing modern features such as middleware, CORS handling, and flexible route handlers.
 
-## Installation
-1. Clone or download the Velix framework.
+Velix is ideal for building small APIs, backend services, or lightweight web applications without the overhead of a full-stack framework.
+
+## ✨ Features
+
+- Simple Routing  
+  Define routes for GET, POST, PUT, PATCH, DELETE, and more with a clean API.
+
+- Flexible Route Handlers  
+  Route handlers can accept parameters in any order:
+  - Request
+  - Response
+  - Route parameters (e.g. {id})
+
+- Middleware System  
+  Global middleware support for CORS, authentication, logging, etc.
+
+- Request Handling  
+  Easily access:
+  - Query parameters
+  - Form data
+  - JSON payloads
+  - Headers
+  - Route parameters
+
+- Response Control  
+  Fluent API for:
+  - Headers
+  - Cookies
+  - Status codes
+  - JSON / text responses
+  - Redirects
+
+- CORS Support  
+  Built-in and configurable CORS handling with sensible defaults.
+
+- UTF-8 Ready  
+  Full UTF-8 support for multilingual URLs and payloads.
+
+- Static File Serving  
+  Automatically serves static files from the public directory.
+
+- Lightweight  
+  No dependencies. One PHP file. Easy to extend.
+
+## 📦 Installation
+
+### 1. Clone or create the project
+
 ```bash
 git clone https://github.com/TiwPhiraphan/velix-php-framework.git app-name
 ```
-or
+
+or using Bun:
+
 ```bash
 bun create TiwPhiraphan/velix-php-framework app-name
 ```
-2. Place the `Velix.php` file in your project root.
-3. Set up a web server (e.g., Apache) with the provided `.htaccess` to route requests through `public/app.php`.
-4. Ensure the `public` directory contains your `app.php` and any static files (e.g., `index.html`).
 
-## Project Structure
+### 2. Project setup
+
+- Place Velix.php in the project root
+- Ensure the public directory contains app.php
+- Configure your web server to route all requests to public/app.php
+
+## 📁 Project Structure
+
 ```
 .
 ├── Velix.php
@@ -33,127 +77,187 @@ bun create TiwPhiraphan/velix-php-framework app-name
     └── index.html
 ```
 
-## Quick Start
-Create `public/app.php` to define your routes and start the server.
+## 🚀 Quick Start
+
+Create public/app.php:
+
 ```php
 <?php
+
 require_once __DIR__ . '/../Velix.php';
 
-$velix = new Velix();
+$app = new Velix();
 
-// Simple GET route
-$velix->get('/', function () {
+/* Simple GET route */
+$app->get('/', function () {
     return ['message' => 'Welcome to Velix!'];
 });
 
-// Dynamic route with parameters
-$velix->get('/user/{id}', function ($id, Request $req, Response $res) {
-    return ['user_id' => $id, 'query' => $req->query('name')];
+/* Dynamic route with parameters */
+$app->get('/user/{id}', function ($id, Request $req) {
+    return [
+        'user_id' => $id,
+        'query' => $req->query('name')
+    ];
 });
 
-// POST route with JSON handling
-$velix->post('/data', function (Request $req, Response $res) {
-    $data = $req->json; // Auto-parsed JSON body
-    $res->status(201)->json(['received' => $data]);
+/* POST route with JSON handling */
+$app->post('/data', function (Request $req, Response $res) {
+    $res->status(201)->json([
+        'received' => $req->json
+    ]);
 });
 
-$velix->dispatch();
+$app->dispatch();
 ```
-Run your server, and Velix will handle the rest!
+Start your server and Velix will handle the rest!
 
-## Flexible Route Handlers
-Velix's route handlers are designed for ultimate flexibility. You can define handlers with any combination of arguments, and Velix will intelligently inject the right values:
-- `Request` or `req`: The `Request` object for accessing query, body, headers, or params.
-- `Response` or `res`: The `Response` object for setting headers, cookies, or status codes.
-- **Route Parameters**: Automatically injected if their names match the route's placeholders (e.g., `{id}`).
-- **Optional Args**: Missing parameters are passed as `null`, so you can omit unnecessary arguments.
-Example:
+## 🔀 Flexible Route Handlers
+
+Velix intelligently injects arguments into route handlers.
+
+### Supported Arguments
+
+- Request / req  
+  The Request object
+
+- Response / res  
+  The Response object
+
+- Route Parameters  
+  Automatically injected when names match placeholders
+
+- Optional Arguments  
+  Missing parameters are passed as null
+
+### Example
+
 ```php
-$velix->get('/post/{id}', function ($id, Request $req) {
-    return ['post_id' => $id, 'category' => $req->query('category', 'general')];
-});
-```
-You can also use `Response` for custom responses:
-```php
-$velix->get('/cookie', function (Response $res) {
-    $res->cookie('theme', 'dark', ['expire' => time() + 3600, 'path' => '/'])
-        ->json(['message' => 'Cookie set!']);
+$app->get('/post/{id}', function ($id, Request $req) {
+    return [
+        'post_id' => $id,
+        'category' => $req->query('category', 'general')
+    ];
 });
 ```
 
-## CORS Configuration
-Velix Framework includes a flexible and configurable CORS system through the `$res->allowCors()` method inside the `Response` class.
-This method supports the following options:
-- **origin** → string (frontend domain)
-- **credentials** → boolean
-- **headers** → string or array
-- **methods** → string or array
-If a value is not provided, Velix will automatically apply default values.
-### ⚙️ Default Configuration
-If no options are provided, the following defaults are used:
+Using Response:
+
+```php
+$app->get('/cookie', function (Response $res) {
+    $res->cookie('theme', 'dark', [
+        'expire' => time() + 3600,
+        'path' => '/'
+    ])->json([
+        'message' => 'Cookie set!'
+    ]);
+});
+```
+
+## 🌐 CORS Configuration
+
+Velix provides built-in CORS support via Response::allowCors().
+
+### Supported Options
+
+- origin → string
+- credentials → boolean
+- headers → string | array
+- methods → string | array
+
+### Default Configuration
+
 ```txt
 origin: *
 credentials: false
 headers: Content-Type, Authorization, X-Requested-With
 methods: GET, POST, PUT, PATCH, DELETE, OPTIONS
 ```
-### Usage Examples
+
+### Usage Example
+
 ```php
-$velix->get('/cookie', function (Response $res) {
+$app->use(function (Request $req, Response $res, $next) {
     $res->allowCors([
-        "origin" => "https://frontend.com",
-        "methods" => ["GET", "POST"]
-    ]).json([...]);
+        'origin' => 'https://frontend.com',
+        'credentials' => true
+    ]);
+
+    if ($req->method === 'OPTIONS') {
+        $res->status(204)->send();
+    }
+
+    return $next();
 });
 ```
 
-## Request Object
-The `Request` class makes it easy to access incoming data:
-- `$req->method`: HTTP method (e.g., GET, POST).
-- `$req->uri`: Request URI.
-- `$req->params`: Route parameters (e.g., {id}).
-- `$req->query($key, $default)`: Get query string values.
-- `$req->input($key, $default)`: Get body or JSON data.
-- `$req->header($key, $default)`: Get request headers.
-- `$req->json`: Auto-parsed JSON payload.
-Example:
+## 📥 Request Object
+
+The Request object provides easy access to incoming data:
+
+- $req->method — HTTP method
+- $req->uri — Request URI
+- $req->params — Route parameters
+- $req->query($key, $default)
+- $req->input($key, $default)
+- $req->header($key, $default)
+- $req->json — Parsed JSON body
+
+### Example
+
 ```php
-$velix->post('/submit', function (Request $req) {
+$app->post('/submit', function (Request $req) {
     return [
         'name' => $req->input('name', 'Guest'),
         'token' => $req->header('Authorization'),
-        'query' => $req->query('page', 1)
+        'page' => $req->query('page', 1)
     ];
 });
 ```
 
-## Response Object
-The `Response` class provides a chainable API for building responses:
-- `$res->header($name, $value)`: Set a response header.
-- `$res->cookie($name, $value, $options)`: Set a cookie with options (expire, path, secure, etc.).
-- `$res->status($code)`: Set HTTP status code.
-- `$res->json($data)`: Send JSON response.
-- `$res->send($body)`: Send raw response.
-Example:
+## 📤 Response Object
+
+The Response object supports a fluent, chainable API:
+
+- $res->header($name, $value)
+- $res->cookie($name, $value, $options)
+- $res->status($code)
+- $res->json($data)
+- $res->text($string)
+- $res->redirect($url)
+- $res->send($body)
+
+### Example
+
 ```php
-$velix->get('/api', function (Response $res) {
+$app->get('/api', function (Response $res) {
     $res->header('X-Version', '1.0')
         ->status(200)
         ->json(['status' => 'ok']);
 });
 ```
 
-## Static Files
-**Static File Serving**:Automatically serves static files (e.g., HTML, CSS, JS) from the public directory, optimized for modern frontend frameworks like React, Vue, or Angular, enabling seamless integration and rapid development.
+## 📂 Static Files
 
-## Error Handling
-If no route matches, Velix serves `public/index.html` (if it exists) or returns a `404 Not Found` response.
+Velix automatically serves static files from the public directory.  
+If no route matches, it will attempt to serve public/index.html before returning 404 Not Found.
 
-## Why Velix?
-- `Minimal Setup`: Get started in minutes with a single PHP file.
-- `Developer-Friendly`: Intuitive APIs and flexible handlers reduce boilerplate code.
-- `Lightweight`: No heavy dependencies, ideal for small projects or APIs.
-- `Customizable`: Easily extend with your own middleware or logic.
+This makes Velix ideal for SPAs built with React, Vue, or Angular.
 
-## License
-Velix is open-source under the MIT License.
+## ❌ Error Handling
+
+- Unhandled exceptions are caught and returned as JSON responses
+- Missing routes return:
+  - public/index.html (if exists)
+  - Otherwise 404 Not Found
+
+## 🤔 Why Velix?
+
+- Minimal setup — One file, instant productivity
+- Developer-friendly — Express-like routing in PHP
+- Lightweight — No heavy abstractions
+- Extensible — Easy to add middleware and features
+
+## 📄 License
+
+Velix is open-source software licensed under the MIT License.
